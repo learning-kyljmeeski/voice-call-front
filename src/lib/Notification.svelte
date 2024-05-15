@@ -55,6 +55,6 @@
 {#if visible}
     <div class="notification {type}">
         {message}
-        <button class="close" on:click={close}>✖</button>
+        <span class="close" on:click={close}>✖</span>
     </div>
 {/if}
