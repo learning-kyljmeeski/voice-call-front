@@ -7,8 +7,11 @@
     let notificationMessage = '';
     let notificationType = 'success';
     let showNotification = false;
+    let loading = false;
 
     async function makeCall() {
+        loading = true;
+
         try {
             const response = await fetch(`http://localhost:8080/api/call?to=${phoneNumber}&message=${message}`, {
                 method: 'POST',
@@ -30,10 +33,11 @@
             notificationType = 'error';
             console.error('Сетевая ошибка:', error);
         } finally {
+            loading = false;
             showNotification = true;
             setTimeout(() => {
                 showNotification = false;
-            }, 3000); // Уведомление будет видно 3 секунды
+            }, 3000);
         }
     }
 </script>
@@ -71,6 +75,7 @@
         color: white;
         border: none;
         cursor: pointer;
+        width: 200px;
     }
 
     button:hover {
@@ -87,7 +92,13 @@
         <label for="message">Сообщение</label>
         <textarea id="message" bind:value={message} placeholder="Введите текст сообщения"></textarea>
     </div>
-    <button on:click={makeCall}>Совершить звонок</button>
+    <button on:click={makeCall} disabled={loading}> <!-- Добавим disabled для блокировки кнопки во время загрузки -->
+        {#if loading}
+            Ожидайте...
+        {:else}
+            Совершить звонок
+        {/if}
+    </button>
 </div>
 
 {#if showNotification}
