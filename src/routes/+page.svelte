@@ -1,6 +1,38 @@
 <script>
+    import { onMount } from 'svelte';
+    import Notification from '$lib/Notification.svelte';
+    
     let phoneNumber = '';
     let message = '';
+    let notificationMessage = '';
+    let notificationType = 'success';
+    let showNotification = false;
+
+    async function makeCall() {
+        try {
+            const response = await fetch(`http://localhost:8080/api/call?to=${phoneNumber}&message=${message}`, {
+                method: 'POST',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                notificationMessage = data.message || 'Звонок успешно совершен!';
+                notificationType = 'success';
+            } else {
+                const errorData = await response.json();
+                notificationMessage = errorData.error || 'Ошибка при совершении звонка';
+                notificationType = 'error';
+            }
+        } catch (error) {
+            notificationMessage = 'Сетевая ошибка: ' + error.message;
+            notificationType = 'error';
+        } finally {
+            showNotification = true;
+            setTimeout(() => {
+                showNotification = false;
+            }, 3000); // Уведомление будет видно 3 секунды
+        }
+    }
 </script>
 
 <style>
@@ -52,5 +84,9 @@
         <label for="message">Сообщение</label>
         <textarea id="message" bind:value={message} placeholder="Введите текст сообщения"></textarea>
     </div>
-    <button on:click="{() => alert('Звонок совершен!')}">Совершить звонок</button>
+    <button on:click={makeCall}>Совершить звонок</button>
 </div>
+
+{#if showNotification}
+    <Notification message={notificationMessage} type={notificationType} />
+{/if}
