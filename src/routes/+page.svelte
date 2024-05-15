@@ -15,17 +15,20 @@
             });
 
             if (response.ok) {
-                const data = await response.json();
+                const data = await response.text();
                 notificationMessage = data.message || 'Звонок успешно совершен!';
                 notificationType = 'success';
+                console.log('Успешный ответ от сервера:', data);
             } else {
                 const errorData = await response.json();
                 notificationMessage = errorData.error || 'Ошибка при совершении звонка';
                 notificationType = 'error';
+                console.error('Ошибка при выполнении запроса:', errorData);
             }
         } catch (error) {
             notificationMessage = 'Сетевая ошибка: ' + error.message;
             notificationType = 'error';
+            console.error('Сетевая ошибка:', error);
         } finally {
             showNotification = true;
             setTimeout(() => {
